@@ -46,48 +46,62 @@ At this point unmount the image in the cloud control panel and then hit enter in
 
  Edit `/etc/netplan/01-netcfg.yaml` and add the following part:
 
-    network:
-      version: 2
-      renderer: networkd
-      ethernets:
+ ```yaml
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
         ens3:
-          addresses:
-            - <ip6-address-copied-from-panel>::1/64
-          dhcp4: true
-          gateway6: fe80::1
+            addresses:
+                - <ip6-address-copied-from-panel>::1/64
+            dhcp4: true
+            gateway6: fe80::1
+```
 
 After saving apply the netplan:
 
-    netplan apply
+```bash
+netplan apply
+```
 
 Now try to ping an ip outside of your box:
 
-    ping 1.1.1.1
+```bash
+ping 1.1.1.1
+```
 
 ## Encrypt volume and setup file system
 
 Set volume as encrypted:
 
-    cryptsetup -y -v luksFormat /dev/sdb
+```bash
+cryptsetup -y -v luksFormat /dev/sdb
+```
 
 ![Encrypt volume](images/15-encrypt-volume.png)
 
 Create random key for your volume and set proper permissions:
 
-    dd if=/dev/random of=/etc/volume-secret-key bs=512 count=8
-    chmod 0600 /etc/volume-secret-key
+```bash
+dd if=/dev/random of=/etc/volume-secret-key bs=512 count=8
+chmod 0600 /etc/volume-secret-key
+```
 
 ![Encrypt volume](images/15-encrypt-volume-1.png)
 
 Add your key file to your volume as an ecryption key:
 
-    cryptsetup -v luksAddKey /dev/sdb /etc/volume-secret-key
+```bash
+cryptsetup -v luksAddKey /dev/sdb /etc/volume-secret-key
+```
 
 ![Encrypt volume](images/15-encrypt-volume-2.png)
 
 To be able to automatically mount your encrypted volume you first need to get the UUID of your volume:
 
-    cryptsetup luksDump /dev/sdb | grep "UUID"
+```bash
+cryptsetup luksDump /dev/sdb | grep "UUID"
+```
 
 ![Encrypt volume](images/15-encrypt-volume-3.png)
 
@@ -97,29 +111,39 @@ Now you need to edit `/etc/crypttab` and add the following entry for your volume
 
 After doing that you are already able to start the encrypted volume:
 
-    cryptdisks_start volume
+```bash
+cryptdisks_start volume
+```
 
 ![Encrypt volume](images/15-encrypt-volume-4.png)
 
 Install `pv` to see progress on the next step when clearing the volume:
 
-    apt-get update && apt-get install pv
+```bash
+apt-get update && apt-get install pv
+```
 
 Then clear the volume (this might take a few minutes depending on the size of the volume):
 
-    pv -tpreb /dev/zero | dd of=/dev/mapper/volume bs=128M
+```bash
+pv -tpreb /dev/zero | dd of=/dev/mapper/volume bs=128M
+```
 
 ![Clear volume](images/16-clear-volume.png)
 
 Now you can create the file system on top of the encrypted volume:
 
-    mkfs.ext4 /dev/mapper/sdb_crypt
+```bash
+mkfs.ext4 /dev/mapper/sdb_crypt
+```
 
 ![Filesystem](images/17-create-filesystem.png)
 
 After that create a mount folder for the volume ...:
 
-    mkdir /mnt/volume
+```bash
+mkdir /mnt/volume
+```
 
 ...and add the following line to `/etc/fstab`:
 
@@ -129,31 +153,41 @@ After that create a mount folder for the volume ...:
 
 Now mount the encrypted volume with a swift:
 
-    mount -a
+```bash
+mount -a
+```
 
 ## Installing Nextcloud
 
 Install nextcloud and enable removable media:
 
-    snap install nextcloud
-    snap enable nextcloud
-    snap connect nextcloud:removable-media
+```bash
+snap install nextcloud
+snap enable nextcloud
+snap connect nextcloud:removable-media
+```
 
 Create a new data folder on your volume:
 
-    mkdir /mnt/volume/nextcloud
+```bash
+mkdir /mnt/volume/nextcloud
+```
 
 Update the config for nextcloud to use that new folder:
 
+```bash
     nano /var/snap/nextcloud/current/nextcloud/config/config.php
+```
 
 ![data directory](images/18-set-data-directory.png)
 
 Disable nextcloud, move over all files and enable it again:
 
-    snap disable nextcloud
-    mv /var/snap/nextcloud/common/nextcloud/data/* /mnt/volume/nextcloud
-    snap enable nextcloud
+```bash
+snap disable nextcloud
+mv /var/snap/nextcloud/common/nextcloud/data/* /mnt/volume/nextcloud
+snap enable nextcloud
+```
 
 For further configuration visit <https://manandkeyboard.tk/2018/01/07/nextcloud-snap-installation/>
 
