@@ -149,10 +149,11 @@ Update the config for nextcloud to use that new folder:
 
 ![data directory](images/18-set-data-directory.png)
 
-Disable nextcloud again and move over all files:
+Disable nextcloud, move over all files and enable it again:
 
     snap disable nextcloud
     mv /var/snap/nextcloud/common/nextcloud/data/* /mnt/volume/nextcloud
+    snap enable nextcloud
 
 For further configuration visit <https://manandkeyboard.tk/2018/01/07/nextcloud-snap-installation/>
 
