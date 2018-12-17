@@ -83,7 +83,7 @@ cryptsetup -y -v luksFormat /dev/sdb
 Create random key for your volume and set proper permissions:
 
 ```bash
-dd if=/dev/random of=/etc/volume-secret-key bs=512 count=8
+dd if=/dev/urandom of=/etc/volume-secret-key bs=512 count=8
 chmod 0600 /etc/volume-secret-key
 ```
 
