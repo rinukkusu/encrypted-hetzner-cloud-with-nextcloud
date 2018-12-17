@@ -181,7 +181,7 @@ Update the config for nextcloud to use that new folder:
 
 ![data directory](images/18-set-data-directory.png)
 
-Disable nextcloud, move over all files and enable it again:
+Disable nextcloud, move over all files, if there are already any and enable it again:
 
 ```bash
 snap disable nextcloud
