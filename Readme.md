@@ -134,7 +134,7 @@ pv -tpreb /dev/zero | dd of=/dev/mapper/volume bs=128M
 Now you can create the file system on top of the encrypted volume:
 
 ```bash
-mkfs.ext4 /dev/mapper/sdb_crypt
+mkfs.ext4 /dev/mapper/volume
 ```
 
 ![Filesystem](images/17-create-filesystem.png)
